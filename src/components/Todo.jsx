@@ -12,8 +12,6 @@ const Todo = () => {
 
   const add = () => {
     const inputText = inputRef.current.value.trim();
-    console.log(inputText);
-
     if (inputText === "") {
       return null;
     }
@@ -22,35 +20,42 @@ const Todo = () => {
       id: Date.now(),
       text: inputText,
       isComplete: false,
+      isEditing: false,
     };
     setTodoList((prev) => [...prev, newTodo]);
     inputRef.current.value = "";
   };
 
   const deleteTodo = (id) => {
-    setTodoList((prevTodo) => {
-      return prevTodo.filter((todo) => todo.id !== id);
-    });
+    setTodoList((prevTodo) => prevTodo.filter((todo) => todo.id !== id));
   };
 
   const toggle = (id) => {
-    setTodoList((prevTodos) => {
-      return prevTodos.map((todo) => {
-        if (todo.id === id) {
-          return {
-            ...todo,
-            isComplete: !todo.isComplete,
-          };
-        } else {
-          return todo;
-        }
-      });
-    });
+    setTodoList((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id ? { ...todo, isComplete: !todo.isComplete } : todo
+      )
+    );
+  };
+
+  const editTodo = (id, newText) => {
+    setTodoList((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id ? { ...todo, text: newText, isEditing: false } : todo
+      )
+    );
+  };
+
+  const toggleEdit = (id) => {
+    setTodoList((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id ? { ...todo, isEditing: !todo.isEditing } : todo
+      )
+    );
   };
 
   useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todoList));
-    console.log(todoList);
+    localStorage.setItem("todoList", JSON.stringify(todoList));
   }, [todoList]);
 
   return (
@@ -81,12 +86,15 @@ const Todo = () => {
       <div>
         {todoList.map((item, index) => (
           <TodoItems
-            text={item.text}
             key={index}
             id={item.id}
+            text={item.text}
             isComplete={item.isComplete}
+            isEditing={item.isEditing}
             deleteTodo={deleteTodo}
             toggle={toggle}
+            editTodo={editTodo}
+            toggleEdit={toggleEdit}
           />
         ))}
       </div>
